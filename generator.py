@@ -10,8 +10,8 @@ import re
 from random import *
 from PIL import Image
 import urllib
+import csv
 
-web = urllib.urlopen('http://spongebob.wikia.com/wiki/List_of_title_cards')
 #Image Extraction ------------------------------------------------------------------------------------------------------------------------
 def downloadCards():
     web = urllib.urlopen('http://spongebob.wikia.com/wiki/List_of_title_cards')
@@ -48,8 +48,7 @@ params  = {'mode':'Printed'}
 #Mun6169114
 
 # Extract the word bounding boxes and text.
-def getSnippets(image_path, character):
-    im = Image.open(image_path)
+def getSnippets(image_path):
     image_data = open(image_path, "rb").read()
     response = requests.request('post', ocr_url, headers=headers, params=params, data=image_data)
     operationLocation = response.headers["Operation-Location"]
@@ -61,15 +60,6 @@ def getSnippets(image_path, character):
             lines = analysis["recognitionResult"]['lines']
             done = True
         except: time.sleep(1)
-#    for i in range(len(lines)):
-#        words = lines[i]["words"]
-#        for j in range(len(words)):
-#            tl = (words[j]['boundingBox'][0], words[j]['boundingBox'][1]) #coords of boxes
-#            tr = (words[j]['boundingBox'][2], words[j]['boundingBox'][3])
-#            br = (words[j]['boundingBox'][4], words[j]['boundingBox'][5])
-#            bl = (words[j]['boundingBox'][6], words[j]['boundingBox'][7])
-#            text = words[j]['text'] #the word it is
-#            im.crop((tl[0]-20, tr[1]+20, br[0], bl[1])).save("first.jpg") #
             
     return lines
 
@@ -192,3 +182,30 @@ def textBox(string, maxLines = 5, tolerance = 0.5):
     lines.append(hMerge(line))
   return vMerge(lines)
 
+def genWordMapping(folder):
+    mapping = {}
+    files = os.listdir(folder)
+    for img in files:
+        path = folder + "/" + img
+        print(path)
+        lines = getSnippets(path)
+        im = Image.open(path)
+        for i in range(len(lines)):
+            words = lines[i]["words"]
+            for j in range(len(words)):
+                tl = (words[j]['boundingBox'][0], words[j]['boundingBox'][1]) #coords of boxes
+                tr = (words[j]['boundingBox'][2], words[j]['boundingBox'][3])
+                br = (words[j]['boundingBox'][4], words[j]['boundingBox'][5])
+                bl = (words[j]['boundingBox'][6], words[j]['boundingBox'][7])
+                text = words[j]['text'] #the word it is
+                if not text in mapping:
+                    mapping[text] = [img]
+                else:
+                    mapping[text].append(img)
+                #im.crop((tl[0], tr[1], br[0], bl[1])).save("first.jpg")    
+    with open('wordLocations.csv', mode='w') as locations:
+        writer = csv.writer(locations, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        for word in mapping:
+            writer.writerow([word] + mapping[word])
+    print("done")
+genWordMapping("titleCards")
