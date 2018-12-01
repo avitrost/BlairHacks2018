@@ -1,6 +1,7 @@
 '''
 Created on Sat Dec 1 2018
 @author: Andrew Zhong
+Requires numpy and PIL (pillow)
 '''
 import numpy as np
 from PIL import Image
@@ -8,8 +9,8 @@ from PIL import Image
 def getImages(paths):
   return [Image.open(i) for i in paths]
 
-def merge(img_list, isVertical):
-  imgs = getImages(img_list)
+def merge(imgPaths, isVertical):  #img_list: array of pathnames
+  imgs = getImages(imgPaths)
   if isVertical:
     return vMerge(imgs)
   else:
@@ -42,15 +43,10 @@ def hMerge(imgs): #img_list: array of images
   return new
 
 
-def arrayMerge(imgArray): #merges 2D array of images
+def arrayMerge(imgPaths): #takes array of paths and merges 2D array of images
+  imgArray = [getImages(row) for row in imgPaths]
   return vMerge([hMerge(imgArray[0]),hMerge(imgArray[1])])
-  #return vMerge([hMerge(row) for row in imgArray])
-    
-    
 
-#imgs = ["test1.png","test2.png","test4.jpg","test3.png"]
-#merge(imgs, False).show()       #open
-
-nameArray = [["test1.png","test4.jpg"],["test2.png","test3.png"]]
-imgArray = [getImages(row) for row in nameArray]
-arrayMerge(imgArray).show()
+#Testing of arrayMerge
+pathArray = [["test1.png","test4.jpg"],["test2.png","test3.png"]]
+arrayMerge(pathArray).show()
