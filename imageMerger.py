@@ -4,6 +4,9 @@ Created on Sat Dec 1 2018
 Requires numpy and PIL (pillow)
 '''
 import numpy as np
+import os
+import re
+from random import *
 from PIL import Image
 
 def getImage(path):
@@ -56,8 +59,27 @@ def arrayMerge(imgPaths): #takes array of paths and merges 2D array of images
   imgArray = [getImages(row) for row in imgPaths]
   return vMerge([hMerge(imgArray[0]),hMerge(imgArray[1])])
 
+def getPath(char):    #gets path to random matching character
+  letters = os.listdir("Texts")
+  
+  specialCharMap = {"'":"APOSTROPHE","?":"QUESTIONMARK","!":"EXCLAIMATION","-":"HYPHEN",".":"PERIOD",",":"COMMA"}
+  if char in specialCharMap:
+    char = specialCharMap[char]
+    
+  path = "Texts/" + char.upper() + "_1"
+  if not char.upper() + "_1.PNG" in letters:
+    print(path)
+    raise ValueError("Character not found")
+  
+  same = [path + ".PNG"]
+  for name in letters:
+    if re.match(char.upper() + "_\d.PNG",name):
+      same.append("Texts/" + name)
+  path = same[int(random() * len(same))]
+  return path
+
 def spellWord(string):
-  return hMerge(getImages(["letters/" + char + ".PNG" for char in string]))
+  return hMerge(getImages([getPath(char) for char in string]))
 
 
 def lastLine(string,width):   #calculates how many character would be in the last line of textBox
@@ -98,9 +120,10 @@ def textBox(string, maxLines = 5, tolerance = 0.5):
     else:
       lines.append(hMerge(line))
       line = []
-      charLen = 0
+      line.append(spellWord(string))
+      charLen = len(string)
   if(len(line) != 0):
     lines.append(hMerge(line))
   return vMerge(lines)
 
-vMerge([getImage("top.PNG"),textBox("u ugg yya uu uaa g yaa ugy",3,0.8)]).show()
+vMerge([getImage("top.PNG"),textBox("When Avi whips it out",3,0.8)]).show()
