@@ -6,6 +6,9 @@ Requires numpy and PIL (pillow)
 import numpy as np
 from PIL import Image
 
+def getImage(path):
+  return Image.open(path)
+
 def getImages(paths):
   return [Image.open(i) for i in paths]
 
@@ -56,13 +59,39 @@ def arrayMerge(imgPaths): #takes array of paths and merges 2D array of images
 def spellWord(string):
   return hMerge(getImages(["letters/" + char + ".PNG" for char in string]))
 
-def textBox(string,maxWidth):
-  strings = string.strip().split(' ')
-  print(strings)
-  lines = []
-  line = []
+
+def lastLine(string,width):   #calculates how many character would be in the last line of textBox
   charLen = 0
-  for string in strings:
+  for s in string.split():
+    if charLen < width:
+      charLen += len(s)
+    else:
+      charLen = 0
+  return charLen
+
+
+def calcWidth(string,maxLines,tolerance):      #Calculates width based on a maximum number of lines for textBox
+  #remove whitespace
+  strings = string.strip().split(' ')
+  while '' in strings:
+    strings.remove('')
+  charCount = len(string.strip().replace(' ',''))
+
+  #increment width until last line is within tolerable range
+  maxWidth = charCount//maxLines
+  while lastLine(string,maxWidth) < maxWidth * tolerance:    #checks if last line is within tolerable range of maxWidth
+    maxWidth += 1
+  return maxWidth
+
+def textBox(string, maxLines = 5, tolerance = 0.5):
+  if len(string) == 0:
+    raise ValueError('No Text provided')
+  maxWidth = calcWidth(string,maxLines,tolerance)
+  lines = []  #array of lines
+  line = []   #array of word images
+  charLen = 0
+  strings = string.strip().split()
+  for string in strings:  #fills line with words until empty, then vMerges
     if charLen < maxWidth:
       line.append(spellWord(string))
       charLen += len(string)
@@ -74,8 +103,4 @@ def textBox(string,maxWidth):
     lines.append(hMerge(line))
   return vMerge(lines)
 
-#Testing of arrayMerge
-#pathArray = [["test1.png","test4.jpg"],["test2.png","test3.png"]]
-#arrayMerge(pathArray).show()
-
-textBox("urga ur gay urr gayy urgaaaay ugg u u u g g g a ", 5).show()
+vMerge([getImage("top.PNG"),textBox("u ugg yya uu uaa g yaa ugy",3,0.8)]).show()
