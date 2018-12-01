@@ -37,9 +37,14 @@ def getSnippets(image_path, character):
     image_data = open(image_path, "rb").read()
     response = requests.request('post', ocr_url, headers=headers, params=params, data=image_data)
     operationLocation = response.headers["Operation-Location"]
-    time.sleep(5)
-    analysis = requests.request('get', operationLocation, json=None, data=None, headers=headers, params=None).json()
-    lines = analysis["recognitionResult"]['lines']
+    analysis,lines = None,None
+    done = False
+    while not done:
+        try:
+            analysis = requests.request('get', operationLocation, json=None, data=None, headers=headers, params=None).json()
+            lines = analysis["recognitionResult"]['lines']
+            done = True
+        except: time.sleep(1)
     for i in range(len(lines)):
         words = lines[i]["words"]
         for j in range(len(words)):
@@ -50,4 +55,4 @@ def getSnippets(image_path, character):
             text = words[j]['text'] #the word it is
             im.crop((tl[0]-20, tr[1]+20, br[0], bl[1])).save("first.jpg") #
 
-getSnippets("l","c")     
+getSnippets("l","c")
