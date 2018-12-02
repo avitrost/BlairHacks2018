@@ -94,6 +94,29 @@ def vMerge(imgs): #img_list: array of images
   new = Image.fromarray(new)          #image from vertical array of images
   return new
 
+def crop(string, image_path):
+    im = Image.open(image_path)
+    image_data = open(image_path, "rb").read()
+    response = requests.request('post', ocr_url, headers=headers, params=params, data=image_data)
+    operationLocation = response.headers["Operation-Location"]
+    analysis,lines = None,None
+    done = False
+    while not done:
+        try:
+            analysis = requests.request('get', operationLocation, json=None, data=None, headers=headers, params=None).json()
+            lines = analysis["recognitionResult"]['lines']
+            done = True
+        except: time.sleep(1)
+    for i in range(len(lines)):
+        words = lines[i]["words"]
+        for j in range(len(words)):
+            tl = (words[j]['boundingBox'][0], words[j]['boundingBox'][1]) #coords of boxes
+            tr = (words[j]['boundingBox'][2], words[j]['boundingBox'][3])
+            br = (words[j]['boundingBox'][4], words[j]['boundingBox'][5])
+            bl = (words[j]['boundingBox'][6], words[j]['boundingBox'][7])
+            text = words[j]['text'] #the word it is
+            if text == string:
+                return im.crop((tl[0]-40, tr[1]-20, br[0]+40, bl[1]+20))
 
 def hMerge(imgs): #img_list: array of images
 
