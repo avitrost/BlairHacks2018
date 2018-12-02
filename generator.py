@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 import tkinter.filedialog
+from tkinter.filedialog import askopenfilename
 import requests
 from PIL import Image
 from io import BytesIO
@@ -268,23 +269,30 @@ def merge():
 #main ----------------------------------
 #genWordMapping("titleCards")
 
-
-root = Tk()
-
-
-
-Label(root, text = "Sponge Bob Title Card Meme Generator",width = 55).grid(row = 0, column = 0, columnspan=2, padx = 5, pady = 5)
-
-Button(root, text = "Select Background Picture", width = 55, command=ask_for_file).grid(row = 2, column = 0, columnspan = 2, padx = 5, pady = 5)
-v = IntVar()
-
-Label(root, text = "Background Picture Placement: ").grid(row = 3, column = 1, sticky = W, padx = 5, pady = 0)
-Radiobutton(root, text="top", variable=v, value=1).grid(row = 4, column = 0, columnspan = 2, padx = 10, pady = 5)
-Radiobutton(root, text="bottom", variable=v, value=2).grid(row = 4, column = 1, columnspan = 2, padx = 10, pady = 5)
-v.set(1)
-Label(root, text = "Text: ", width = 10).grid(row = 5, column = 0, sticky = W, padx = 5, pady = 5)
-Entry(root,width = 30).grid(row = 5, column = 1, sticky = E, padx = 50, pady = 5)
-
-Button(root,text = "GENERATE",width = 55, command=merge).grid(row = 6, column = 0, columnspan = 2, padx = 5, pady = 5)
-
-root.mainloop()
+class GUI:
+    def __init__(self, root):
+        self.v = StringVar()
+        self.root = root
+        root.title("Spongebob meme generator")
+        self.file_button = Button(root, text = "Select Background Picture", width = 55, command=self.ask_for_file)
+        self.file_button.pack()
+        self.label = Label(root, text = "Text: ", width = 10)
+        self.label.pack()
+        self.entry = Entry(root,width = 30, textvariable=self.v)
+        self.entry.pack()
+        self.button = Button(root,text = "GENERATE",width = 55, command=self.merge)
+        self.button.pack()
+        self.v.set("")
+    def ask_for_file(self):
+        file = askopenfilename(filetypes=(("Template files", "*.tplate"),
+                                           ("HTML files", "*.html;*.htm"),
+                                           ("All files", "*.*") ))
+        if file != None:
+            return file
+        print("Error with file")
+        return None
+    def merge(self):
+        vMerge([getImage("top.PNG"),textBox(v.get(),3,0.8)]).show()
+r = Tk()
+gui = GUI(r)
+r.mainloop()
