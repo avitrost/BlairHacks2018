@@ -1,3 +1,6 @@
+from tkinter import *
+from tkinter import ttk
+import tkinter.filedialog
 import requests
 from PIL import Image
 from io import BytesIO
@@ -259,7 +262,29 @@ def read():
 	reader = csv.reader(infile)
 	mapping = {rows[0]:rows[1:] if len(rows[0]) > 1 else continue for rows in reader}
 	return mapping
+def merge():
+	vMerge([getImage("top.PNG"),textBox("Spongebob is great boi",3,0.8)]).show()
 
 #main ----------------------------------
 #genWordMapping("titleCards")
-vMerge([getImage("top.PNG"),textBox("Spongebob is great boi",3,0.8)]).show()
+
+
+root = Tk()
+
+
+
+Label(root, text = "Sponge Bob Title Card Meme Generator",width = 55).grid(row = 0, column = 0, columnspan=2, padx = 5, pady = 5)
+
+Button(root, text = "Select Background Picture", width = 55, command=ask_for_file).grid(row = 2, column = 0, columnspan = 2, padx = 5, pady = 5)
+v = IntVar()
+
+Label(root, text = "Background Picture Placement: ").grid(row = 3, column = 1, sticky = W, padx = 5, pady = 0)
+Radiobutton(root, text="top", variable=v, value=1).grid(row = 4, column = 0, columnspan = 2, padx = 10, pady = 5)
+Radiobutton(root, text="bottom", variable=v, value=2).grid(row = 4, column = 1, columnspan = 2, padx = 10, pady = 5)
+v.set(1)
+Label(root, text = "Text: ", width = 10).grid(row = 5, column = 0, sticky = W, padx = 5, pady = 5)
+Entry(root,width = 30).grid(row = 5, column = 1, sticky = E, padx = 50, pady = 5)
+
+Button(root,text = "GENERATE",width = 55, command=merge).grid(row = 6, column = 0, columnspan = 2, padx = 5, pady = 5)
+
+root.mainloop()
