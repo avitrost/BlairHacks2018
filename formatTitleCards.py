@@ -3,7 +3,7 @@
 import os
 
 #Path to the file of title cards
-folder_path = "C:\\Users\\Avi\\Documents\\BlairHacks2018\\titleCards"
+folder_path = "titleCards"
 pictures = [f for f in os.listdir(folder_path)]
 
 #Things to change about the titles
@@ -53,8 +53,14 @@ def trueName(pictures):
     return mapping
 
 #writes the information in a text file
-things = trueName(pictures)
-file = open("mapping.txt","w+")
-for title in things:
-    file.write(title + " = " + things[title] + "\n")
-file.close()
+#things = trueName(pictures)
+file = open("mapping_2.txt","r")
+files = os.listdir(folder_path)
+for line in file:
+    new,original = line.split(" = ")
+    original = original[0:len(original) - 1]
+    if original in files:
+        try: os.rename(folder_path + "/" + original,folder_path + "/" + new)
+        except: print(original)
+    else:
+        print("Error: " + original)
