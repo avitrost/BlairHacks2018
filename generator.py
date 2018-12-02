@@ -217,3 +217,9 @@ def genWordMapping(folder):
 start = time.time()
 genWordMapping("titleCards")
 print(time.time() - start)
+
+#Reading from CSV---------------------------------------------------------------------------
+def read():
+    with open('wordLocations.csv', mode='r') as infile:
+    reader = csv.reader(infile)
+    mapping = {rows[0]:rows[1:] if len(rows[0]) > 1 else continue for rows in reader}
